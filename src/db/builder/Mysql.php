@@ -224,11 +224,11 @@ class Mysql extends Builder
         }
 
         foreach ($datas as $data) {
-            foreach ($data as $key => &$val) {
+            foreach ($data as $key => $val) {
                 if (!$query->isAutoBind()) {
-                    $val = PDO::PARAM_STR == $bind[$keys[$key]] ? '\'' . $val . '\'' : $val;
+                    $data[$key] = PDO::PARAM_STR == $bind[$keys[$key]] ? '\'' . $val . '\'' : $val;
                 } else {
-                    $val = $this->parseDataBind($query, $keys[$key], $val, $bind);
+                    $data[$key] = $this->parseDataBind($query, $keys[$key], $val, $bind);
                 }
             }
             $values[] = '( ' . implode(',', $data) . ' )';

@@ -185,9 +185,9 @@ abstract class Relation
             $fields = explode(',', $fields);
         }
 
-        foreach ($fields as &$field) {
+        foreach ($fields as $idx => $field) {
             if (!str_contains($field, '.')) {
-                $field = $model . '.' . $field;
+                $fields[$idx] = $model . '.' . $field;
             }
         }
 
@@ -196,12 +196,13 @@ abstract class Relation
 
     protected function getQueryWhere(array &$where, string $relation): void
     {
-        foreach ($where as $key => &$val) {
+        foreach ($where as $key => $val) {
             if (is_string($key)) {
                 $where[] = [!str_contains($key, '.') ? $relation . '.' . $key : $key, '=', $val];
                 unset($where[$key]);
             } elseif (isset($val[0]) && !str_contains($val[0], '.')) {
                 $val[0] = $relation . '.' . $val[0];
+                $where[$key] = $val;
             }
         }
     }

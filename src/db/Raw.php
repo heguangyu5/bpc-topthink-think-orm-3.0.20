@@ -20,6 +20,9 @@ use Stringable;
  */
 class Raw
 {
+    protected $value;
+    protected $bind;
+
     /**
      * 创建一个查询表达式.
      *
@@ -28,8 +31,10 @@ class Raw
      *
      * @return void
      */
-    public function __construct(protected string|Stringable $value, protected array $bind = [])
+    public function __construct(/*protected*/ string|Stringable $value, /*protected*/ array $bind = [])
     {
+        $this->value = $value;
+        $this->bind  = $bind;
     }
 
     /**

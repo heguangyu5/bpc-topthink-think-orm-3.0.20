@@ -275,12 +275,14 @@ abstract class PDOConnection extends Connection
     public function fieldCase(array $info): array
     {
         // 字段大小写转换
-        return match ($this->attrCase) {
-            PDO::CASE_LOWER => array_change_key_case($info),
-            PDO::CASE_UPPER => array_change_key_case($info, CASE_UPPER),
-            PDO::CASE_NATURAL => $info,
-            default => $info,
-        };
+        switch ($this->attrCase) {
+            case PDO::CASE_LOWER:
+                return array_change_key_case($info);
+            case PDO::CASE_UPPER:
+                return array_change_key_case($info, CASE_UPPER);
+            default:
+                return $info;
+        }
     }
 
     /**
@@ -324,14 +326,22 @@ abstract class PDOConnection extends Connection
      */
     public function getFieldBindType(string $type): int
     {
-        return match (true) {
-            in_array($type, ['integer', 'string', 'float', 'boolean', 'bool', 'int', 'str']) => $this->bindType[$type],
-            str_starts_with($type, 'set'), str_starts_with($type, 'enum') => self::PARAM_STR,
-            preg_match('/(double|float|decimal|real|numeric)/i', $type)   => self::PARAM_FLOAT,
-            preg_match('/(int|serial|bit)/i', $type)                      => self::PARAM_INT,
-            preg_match('/bool/i', $type)                                  => self::PARAM_BOOL,
-            default                                                       => self::PARAM_STR,
-        };
+        if (in_array($type, ['integer', 'string', 'float', 'boolean', 'bool', 'int', 'str'])) {
+            return $this->bindType[$type];
+        }
+        if (str_starts_with($type, 'set') || str_starts_with($type, 'enum')) {
+            return self::PARAM_STR;
+        }
+        if (preg_match('/(double|float|decimal|real|numeric)/i', $type)) {
+            return self::PARAM_FLOAT;
+        }
+        if (preg_match('/(int|serial|bit)/i', $type)) {
+            return self::PARAM_INT;
+        }
+        if (preg_match('/bool/i', $type)) {
+            return self::PARAM_BOOL;
+        }
+        return self::PARAM_STR;
     }
 
     /**
@@ -369,7 +379,7 @@ abstract class PDOConnection extends Connection
         $autoinc = $info['_autoinc'] ?? null;
         unset($info['_pk'], $info['_autoinc']);
 
-        $bind = array_map(fn($val) => $this->getFieldBindType($val), $info);
+        $bind = array_map(function ($val) { return $this->getFieldBindType($val); }, $info);
 
         $this->info[$schema] = [
             'fields'  => array_keys($info),

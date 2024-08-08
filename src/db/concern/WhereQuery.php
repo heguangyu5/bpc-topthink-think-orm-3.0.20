@@ -60,15 +60,17 @@ trait WhereQuery
      */
     protected function parseQueryWhere(BaseQuery $query): void
     {
-        $this->options['where'] = $query->getOptions('where') ?? [];
+        $where = $query->getOptions('where');
+        $this->options['where'] = $where ?? [];
 
         $via = $query->getOptions('via');
 
         if ($via) {
-            foreach ($this->options['where'] as $logic => &$where) {
-                foreach ($where as $key => &$val) {
+            foreach ($this->options['where'] as $logic => $where) {
+                foreach ($where as $key => $val) {
                     if (is_array($val) && !str_contains($val[0], '.')) {
                         $val[0] = $via . '.' . $val[0];
+                        $this->options['where'][$logic][$key] = $val;
                     }
                 }
             }

@@ -80,11 +80,11 @@ class Builder extends BaseBuilder
                     throw new Exception('fields not exists:[' . $key . ']');
                 }
             } elseif (is_array($val) && !empty($val) && is_string($val[0])) {
-                if (in_array(strtoupper($val[0]), ['INC', 'DEC'])) {
-                    $result[$item] = match (strtoupper($val[0])) {
-                        'INC' => $item . ' + ' . floatval($val[1]),
-                        'DEC' => $item . ' - ' . floatval($val[1]),
-                    };
+                $val0 = strtoupper($val[0]);
+                if ($val0 === 'INC') {
+                    $result[$item] = $item . ' + ' . floatval($val[1]);
+                } elseif ($val0 === 'DEC') {
+                    $result[$item] = $item . ' - ' . floatval($val[1]);
                 }
             } elseif (is_scalar($val)) {
                 // 过滤非标量数据
@@ -745,11 +745,11 @@ class Builder extends BaseBuilder
         }
 
         foreach ($datas as $k => $data) {
-            foreach ($data as $key => &$val) {
+            foreach ($data as $key => $val) {
                 if (!$query->isAutoBind()) {
-                    $val = Connection::PARAM_STR == $bind[$keys[$key]] ? '\'' . $val . '\'' : $val;
+                    $data[$key] = Connection::PARAM_STR == $bind[$keys[$key]] ? '\'' . $val . '\'' : $val;
                 } else {
-                    $val = $this->parseDataBind($query, $keys[$key], $val, $bind);
+                    $data[$key] = $this->parseDataBind($query, $keys[$key], $val, $bind);
                 }
             }
 

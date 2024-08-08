@@ -884,8 +884,8 @@ abstract class BaseBuilder
      */
     public function selectInsert(Query $query, array $fields, string $table): string
     {
-        foreach ($fields as &$field) {
-            $field = $this->parseKey($query, $field, true);
+        foreach ($fields as $idx => $field) {
+            $fields[$idx] = $this->parseKey($query, $field, true);
         }
 
         return 'INSERT INTO ' . $this->parseTable($query, $table) . ' (' . implode(',', $fields) . ') ' . $this->select($query);

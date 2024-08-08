@@ -587,9 +587,10 @@ trait ModelRelationQuery
 
         $this->options['is_resultSet'] = true;
 
-        foreach ($resultSet as $key => &$result) {
+        foreach ($resultSet as $key => $result) {
             // 数据转换为模型对象
             $this->resultToModel($result);
+            $resultSet[$key] = $result;
         }
 
         foreach (['with', 'with_join'] as $with) {

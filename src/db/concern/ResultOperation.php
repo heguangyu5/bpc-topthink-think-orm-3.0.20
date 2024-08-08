@@ -117,8 +117,9 @@ trait ResultOperation
      */
     protected function resultSet(array &$resultSet, bool $toCollection = true): void
     {
-        foreach ($resultSet as &$result) {
+        foreach ($resultSet as $key => $result) {
             $this->result($result);
+            $resultSet[$key] = $result;
         }
 
         // 返回Collection对象

@@ -465,18 +465,28 @@ trait Attribute
             [$type, $param] = explode(':', $type, 2);
         }
 
-        return match ($type) {
-            'integer'   =>  (int) $value,
-            'float'     =>  empty($param) ? (float) $value : (float) number_format($value, (int) $param, '.', ''),
-            'boolean'   =>  (bool) $value,
-            'timestamp' =>  !is_numeric($value) ? strtotime($value) : $value,
-            'datetime'  =>  $this->formatDateTime('Y-m-d H:i:s.u', $value, true),
-            'object'    =>  is_object($value) ? json_encode($value, JSON_FORCE_OBJECT) : $value,
-            'array'     =>  json_encode((array) $value, !empty($param) ? (int) $param : JSON_UNESCAPED_UNICODE),
-            'json'      =>  json_encode($value, !empty($param) ? (int) $param : JSON_UNESCAPED_UNICODE),
-            'serialize' =>  serialize($value),
-            default     =>  $value instanceof Stringable && str_contains($type, '\\') ? $value->__toString() : $value,
-        };
+        switch ($type) {
+            case 'integer':
+                return (int) $value;
+            case 'float':
+                return empty($param) ? (float) $value : (float) number_format($value, (int) $param, '.', '');
+            case 'boolean':
+                return (bool) $value;
+            case 'timestamp':
+                return !is_numeric($value) ? strtotime($value) : $value;
+            case 'datetime':
+                return $this->formatDateTime('Y-m-d H:i:s.u', $value, true);
+            case 'object':
+                return is_object($value) ? json_encode($value, JSON_FORCE_OBJECT) : $value;
+            case 'array':
+                return json_encode((array) $value, !empty($param) ? (int) $param : JSON_UNESCAPED_UNICODE);
+            case 'json':
+                return json_encode($value, !empty($param) ? (int) $param : JSON_UNESCAPED_UNICODE);
+            case 'serialize':
+                return serialize($value);
+            default:
+                return  $value instanceof Stringable && str_contains($type, '\\') ? $value->__toString() : $value;
+        }
     }
 
     /**
@@ -625,18 +635,28 @@ trait Attribute
             return $value;
         };
 
-        return match ($type) {
-            'integer'   =>  (int) $value,
-            'float'     =>  empty($param) ? (float) $value : (float) number_format($value, (int) $param, '.', ''),
-            'boolean'   =>  (bool) $value,
-            'timestamp' =>  !is_null($value) ? $this->formatDateTime(!empty($param) ? $param : $this->dateFormat, $value, true) : null,
-            'datetime'  =>  !is_null($value) ? $this->formatDateTime(!empty($param) ? $param : $this->dateFormat, $value) : null,
-            'json'      =>  json_decode($value, true),
-            'array'     =>  empty($value) ? [] : json_decode($value, true),
-            'object'    =>  empty($value) ? new \stdClass() : json_decode($value),
-            'serialize' =>  $call($value),
-            default     =>  str_contains($type, '\\') ? new $type($value) : $value,
-        };
+        switch ($type) {
+            case 'integer':
+                return (int) $value;
+            case 'float':
+                return empty($param) ? (float) $value : (float) number_format($value, (int) $param, '.', '');
+            case 'boolean':
+                return (bool) $value;
+            case 'timestamp':
+                return !is_null($value) ? $this->formatDateTime(!empty($param) ? $param : $this->dateFormat, $value, true) : null;
+            case 'datetime':
+                return !is_null($value) ? $this->formatDateTime(!empty($param) ? $param : $this->dateFormat, $value) : null;
+            case 'json':
+                return json_decode($value, true);
+            case 'array':
+                return empty($value) ? [] : json_decode($value, true);
+            case 'object':
+                return empty($value) ? new \stdClass() : json_decode($value);
+            case 'serialize':
+                return $call($value);
+            default:
+                return str_contains($type, '\\') ? new $type($value) : $value;
+        }
     }
 
     /**
